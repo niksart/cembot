@@ -9,9 +9,19 @@ import os
 import DBManager
 
 
+def send_markdown_message(bot, chat_id, text):
+	bot.sendMessage(chat_id, text, parse_mode="Markdown")
+
+
 def authorize(bot, user, chat, args):
 	authorizer = user["username"]
+
+	if len(args) != 1:
+		send_markdown_message(bot, chat["id"], helpers[authorize])
+		return
+
 	authorized = args[0]
+	print(authorizer + ": 'please authorize this user: " + authorized + "'")
 
 	cur = dbman.get_cursor()
 	cur.execute("SELECT id FROM authorizations WHERE authorizer=%s AND authorized=%s", (authorizer, authorized))
@@ -25,7 +35,13 @@ def authorize(bot, user, chat, args):
 
 def deauthorize(bot, user, chat, args):
 	deauthorizer = user["username"]
+
+	if len(args) != 1:
+		send_markdown_message(bot, chat["id"], helpers[deauthorize])
+		return
+
 	deauthorized = args[0]
+	print(deauthorizer + ": 'please deauthorize this user: " + deauthorized + "'")
 
 	cur = dbman.get_cursor()
 	cur.execute("SELECT id FROM authorizations WHERE authorizer=%s AND authorized=%s", (deauthorizer, deauthorized))
@@ -37,7 +53,38 @@ def deauthorize(bot, user, chat, args):
 	dbman.close_cursor(cur)
 
 
-commands_private = {"authorize": authorize, "deauthorize": deauthorize}
+def given(bot, user, chat, args):
+	payer = user["username"]
+
+	if len(args) != 2:
+		send_markdown_message(bot, chat["id"], helpers[given])
+		return
+
+	try:
+		amountstr = args[0].replace(',', '.').replace('€', '')
+		amount = int(100 * float(amountstr))
+	except ValueError:
+		bot.sendMessage(chat["id"], "Amount of money not valid.")
+		return
+
+	payee = args[1]
+
+	cur = dbman.get_cursor()
+	cur.execute("INSERT INTO transactions (payer, amount, time) VALUES (%s, %s, %s) RETURNING id", (payer, amount, int(time.time())))
+	id_new_transaction = cur.fetchone()[0]
+	dbman.commit_changes()
+
+	cur.execute("INSERT INTO payees (transaction_id, payee) VALUES (%s, %s)", (id_new_transaction, payee))
+	dbman.close_cursor(cur)
+
+
+helpers = {
+	authorize: "Usage: `/authorize <user>`",
+	deauthorize: "Usage: `/deauthorize <user>`",
+	given: "Usage: `/given <amount> <user>`"
+}
+
+commands_private = {"authorize": authorize, "deauthorize": deauthorize, "given": given}
 commands_group = {}
 
 
@@ -45,7 +92,6 @@ def handle(bot, msg):
 	parsed = telepot.routing.by_chat_command(pass_args=True, separator=' ')(msg)
 
 	if parsed[0] in commands_private:
-		print(msg)
 		chat = msg["chat"]
 		user = msg["from"]
 		if chat["type"] != "private":
@@ -61,10 +107,10 @@ def main(argv):
 		dbuser = argv[2]
 		dbpassword = argv[3]
 		dbhost = argv[4]
+		dbman = DBManager.DBManager(dbname, dbuser, dbpassword, dbhost)
 	else:
 		print("Usage: python " + argv[0] + " <dbname> <dbuser> <dbpassword> <dbhost>")
 		exit(1)
-	dbman = DBManager.DBManager(dbname, dbuser, dbpassword, dbhost)
 	
 	bot = telepot.Bot(os.environ["CEM"])
 	telepot.loop.MessageLoop(bot, handle=(lambda msg: handle(bot, msg))).run_as_thread()
