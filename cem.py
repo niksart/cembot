@@ -111,7 +111,7 @@ def main(argv):
 	else:
 		print("Usage: python " + argv[0] + " <dbname> <dbuser> <dbpassword> <dbhost>")
 		exit(1)
-	
+
 	bot = telepot.Bot(os.environ["CEM"])
 	telepot.loop.MessageLoop(bot, handle=(lambda msg: handle(bot, msg))).run_as_thread()
 	print('Listening ...')
