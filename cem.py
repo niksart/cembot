@@ -14,7 +14,7 @@ def send_markdown_message(bot, chat_id, text):
 
 
 def authorize(bot, user, chat, args):
-	authorizer = user["username"]
+	authorizer = user["id"]
 
 	if len(args) != 1:
 		send_markdown_message(bot, chat["id"], helpers[authorize])
@@ -34,7 +34,7 @@ def authorize(bot, user, chat, args):
 
 
 def deauthorize(bot, user, chat, args):
-	deauthorizer = user["username"]
+	deauthorizer = user["id"]
 
 	if len(args) != 1:
 		send_markdown_message(bot, chat["id"], helpers[deauthorize])
@@ -54,7 +54,7 @@ def deauthorize(bot, user, chat, args):
 
 
 def given(bot, user, chat, args):
-	payer = user["username"]
+	payer = user["id"]
 
 	if len(args) != 2:
 		send_markdown_message(bot, chat["id"], helpers[given])
