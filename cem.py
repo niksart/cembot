@@ -101,6 +101,12 @@ def handle(bot, msg):
 			else:
 				commands_private[parsed[0]](bot, user, chat, parsed[1][0])
 
+		cur = dbman.get_cursor()
+		cur.execute("SELECT * FROM idmappings WHERE username=%s", msg["from"]["username"])
+		if cur.fetchone() is None:
+			cur.execute("INSERT INTO idmappings (username, id) VALUES (%s,%s)", (msg["from"]["username"], msg["from"]["id"]))
+		dbman.close_cursor(cur)
+
 
 def main(argv):
 	global dbman
