@@ -89,15 +89,17 @@ commands_group = {}
 
 
 def handle(bot, msg):
-	parsed = telepot.routing.by_chat_command(pass_args=True, separator=' ')(msg)
+	content_type, chat_type, chat_id = telepot.glance(msg)
+	if content_type == 'text':
+		parsed = telepot.routing.by_chat_command(pass_args=True, separator=' ')(msg)
 
-	if parsed[0] in commands_private:
-		chat = msg["chat"]
-		user = msg["from"]
-		if chat["type"] != "private":
-			bot.sendMessage(chat["id"], "For using this command open a private chat with @coexmabot.")
-		else:
-			commands_private[parsed[0]](bot, user, chat, parsed[1][0])
+		if parsed[0] in commands_private:
+			chat = msg["chat"]
+			user = msg["from"]
+			if chat["type"] != "private":
+				bot.sendMessage(chat["id"], "For using this command open a private chat with @coexmabot.")
+			else:
+				commands_private[parsed[0]](bot, user, chat, parsed[1][0])
 
 
 def main(argv):
