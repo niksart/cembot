@@ -27,3 +27,5 @@ CREATE TABLE idmappings (
     id               integer,
     PRIMARY KEY (username, id)
 )
+
+CREATE INDEX map_username ON idmappings USING HASH (username);
