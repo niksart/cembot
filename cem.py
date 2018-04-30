@@ -118,7 +118,7 @@ def handle(bot, msg):
 		parsed = telepot.routing.by_chat_command(pass_args=True, separator=' ')(msg)
 
 		# check if there is a mapping between username and id
-		dbman.check_idmapping(msg["from"])
+		dbman.update_username_id_mapping(msg["from"])
 
 		if parsed[0] in commands_private:
 			chat = msg["chat"]
