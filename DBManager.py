@@ -19,3 +19,32 @@ class DBManager:
 
 	def commit_changes(self):
 		self.conn.commit()
+
+	def get_id_by_username(self, username):
+		cur = self.conn.cursor()
+		cur.execute("SELECT id FROM idmappings WHERE username=%s", (username, ))
+		row = cur.fetchone()
+		if row is None:
+			ret = None
+		else:
+			ret = int(row[0])
+
+		self.close_cursor(cur)
+		return ret
+
+	def check_idmapping(self, user):
+		cur = self.conn.cursor()
+		username = user["username"]
+		id_user = int(user["id"])
+		cur.execute("SELECT * FROM idmappings WHERE username=%s", (username,))
+		if cur.fetchone() is None:
+			cur.execute("INSERT INTO idmappings (username, id) VALUES (%s,%s)", (username, id_user))
+		self.close_cursor(cur)
+
+	def test_authorization(self, authorizer_id, authorized_id):
+		cur = self.conn.cursor()
+		cur.execute("SELECT * FROM authorizations WHERE authorizer=%s AND authorized=%s", (authorizer_id, authorized_id))
+		if cur.fetchone() is not None:
+			return True
+		else:
+			return False
