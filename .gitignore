@@ -1,3 +1,2 @@
 .idea
-cem.db
-db
+__pycache__
