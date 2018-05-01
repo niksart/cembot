@@ -3,6 +3,7 @@ CREATE TABLE transactions (
     payer         integer,
     amount        integer,
     time          integer,
+    description   text,
     group_id      bigint,
     PRIMARY KEY (id)
 );
@@ -28,4 +29,12 @@ CREATE TABLE idmappings (
     PRIMARY KEY (username, id)
 )
 
+CREATE TABLE belongings (
+    group_id         integer,
+    user_id          integer,
+    PRIMARY KEY (group_id, user_id)
+)
+
 CREATE INDEX map_username ON idmappings USING HASH (username);
+
+CREATE INDEX check_group ON belongings USING HASH (group_id, user_id);

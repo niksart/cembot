@@ -48,3 +48,28 @@ class DBManager:
 			return True
 		else:
 			return False
+
+	def check_belonging_existence(self, user_id, group_id):
+		cur = self.conn.cursor()
+		cur.execute("SELECT * FROM belongings WHERE group_id=%s AND user_id=%s", (group_id, user_id))
+		if cur.fetchone() is None:
+			cur.execute("INSERT INTO belongings (group_id, user_id) VALUES (%s,%s)", (group_id, user_id))
+		self.close_cursor(cur)
+
+	def check_existence_group(self, group_id):
+		cur = self.conn.cursor()
+		cur.execute("SELECT * FROM belongings WHERE group_id=%s", (group_id, ))
+		if cur.fetchone() is None:
+			ret = False
+		else:
+			ret = True
+		self.close_cursor(cur)
+
+		return ret
+
+	def get_number_members_group(self, group_id):
+		cur = self.conn.cursor()
+		cur.execute("SELECT COUNT(*) FROM belongings WHERE group_id=%s", (group_id,))
+		ret = int(cur.fetchone()[0])
+		self.close_cursor(cur)
+		return ret
