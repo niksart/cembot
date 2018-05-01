@@ -32,7 +32,7 @@ class DBManager:
 		self.close_cursor(cur)
 		return ret
 
-	def check_idmapping(self, user):
+	def update_username_id_mapping(self, user):
 		cur = self.conn.cursor()
 		username = user["username"]
 		id_user = int(user["id"])
