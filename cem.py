@@ -14,10 +14,13 @@ import helpers
 
 DEBUG = True
 
-## AUXILIARY FUNCTIONS ##
+
+# AUXILIARY FUNCTIONS #
+
 
 def is_username(s):
 	return len(s) - 1 > 4 and s[0] == "@"
+
 
 def get_function_by_key(key):
 	if key == "AUTHORIZE":
@@ -29,34 +32,38 @@ def get_function_by_key(key):
 	if key == "SPENT":
 		return spent
 
+
 def set_language(lang):
 	global error
 	global info
 	global commands_group
 	global commands_private
-	global help
+	global helper
 
-	if lang=="EN":
-		error = error_messages.EN
-		info = info_messages.EN
-		commands_group = commands.EN_G
-		commands_private = commands.EN_P
-		help = helpers.EN
+	lang = lang[:2]
 
-	if lang=="IT":
+	if lang == "it":  # support for italian
 		error = error_messages.IT
 		info = info_messages.IT
 		commands_group = commands.IT_G
 		commands_private = commands.IT_P
-		help = helpers.IT
+		helper = helpers.IT
+	else:  # default language: english
+		error = error_messages.EN
+		info = info_messages.EN
+		commands_group = commands.EN_G
+		commands_private = commands.EN_P
+		helper = helpers.EN
+
 
 #########################
+
 
 def authorize(bot, user, chat, args):
 	authorizer_id = int(user["id"])
 
 	if len(args) != 1:
-		bot.sendMessage(chat["id"], help["AUTHORIZE"], parse_mode="Markdown")
+		bot.sendMessage(chat["id"], helper["AUTHORIZE"], parse_mode="Markdown")
 		return
 
 	if is_username(args[0]):
@@ -78,9 +85,8 @@ def authorize(bot, user, chat, args):
 	if cur.fetchone() is not None:
 		bot.sendMessage(chat["id"], error["have_authorized_yet_this_user"])
 	else:
-		cur.execute("INSERT INTO authorizations (authorizer, authorized) VALUES (%s, %s)",
-		            (authorizer_id, authorized_id))
-		bot.sendMessage(chat["id"], info["authorized_confirm(user)"]  % authorized_username)
+		cur.execute("INSERT INTO authorizations (authorizer, authorized) VALUES (%s, %s)", (authorizer_id, authorized_id))
+		bot.sendMessage(chat["id"], info["authorized_confirm(user)"] % authorized_username)
 	dbman.close_cursor(cur)
 
 
@@ -88,7 +94,7 @@ def deauthorize(bot, user, chat, args):
 	deauthorizer_id = int(user["id"])
 
 	if len(args) != 1:
-		bot.sendMessage(chat["id"], help["DEAUTHORIZE"], parse_mode="Markdown")
+		bot.sendMessage(chat["id"], helper["DEAUTHORIZE"], parse_mode="Markdown")
 		return
 
 	if is_username(args[0]):
@@ -105,13 +111,11 @@ def deauthorize(bot, user, chat, args):
 	# print("%s: 'please deauthorize this user: %s'" % (deauthorizer_id, deauthorized_id))
 
 	cur = dbman.get_cursor()
-	cur.execute("SELECT id FROM authorizations WHERE authorizer=%s AND authorized=%s",
-	            (deauthorizer_id, deauthorized_id))
+	cur.execute("SELECT id FROM authorizations WHERE authorizer=%s AND authorized=%s", (deauthorizer_id, deauthorized_id))
 	if cur.fetchone() is None:
 		bot.sendMessage(chat["id"], error["can't_deauthorize_cause_not_authorized_yet"])
 	else:
-		cur.execute("DELETE FROM authorizations WHERE authorizer=%s AND authorized=%s",
-		            (deauthorizer_id, deauthorized_id))
+		cur.execute("DELETE FROM authorizations WHERE authorizer=%s AND authorized=%s", (deauthorizer_id, deauthorized_id))
 		bot.sendMessage(chat["id"], info["deauthorized_confirm(user)"] % deauthorized_username)
 	dbman.close_cursor(cur)
 
@@ -120,7 +124,7 @@ def given(bot, user, chat, args):
 	payer_id = int(user["id"])
 
 	if len(args) != 2:
-		bot.sendMessage(chat["id"], help["GIVEN"], parse_mode="Markdown")
+		bot.sendMessage(chat["id"], helper["GIVEN"], parse_mode="Markdown")
 		return
 
 	try:
@@ -147,8 +151,7 @@ def given(bot, user, chat, args):
 
 	try:
 		cur = dbman.get_cursor()
-		cur.execute("INSERT INTO transactions (payer, amount, time) VALUES (%s, %s, %s) RETURNING id",
-		            (payer_id, amount, int(time.time())))
+		cur.execute("INSERT INTO transactions (payer, amount, time) VALUES (%s, %s, %s) RETURNING id", (payer_id, amount, int(time.time())))
 		id_new_transaction = cur.fetchone()[0]
 		dbman.commit_changes()
 
@@ -166,7 +169,7 @@ def spent(bot, user, chat, args):
 	payer_id = int(user["id"])
 
 	if len(args) != 2:
-		bot.sendMessage(chat["id"], help["SPENT"], parse_mode="Markdown")
+		bot.sendMessage(chat["id"], helper["SPENT"], parse_mode="Markdown")
 		return
 
 	try:
@@ -191,6 +194,7 @@ def handle(bot, msg):
 
 	chat = msg["chat"]
 	user = msg["from"]
+	set_language(user["language_code"])
 
 	# check if there is a mapping between username and id in db
 	dbman.update_username_id_mapping(user)
@@ -202,7 +206,8 @@ def handle(bot, msg):
 			bot.sendMessage(chat_id, info["introduced_in_group"])
 		else:
 			# add the new user to group TODO
-			if DEBUG: print("Added user with id: %s" % added_user)
+			if DEBUG:
+				print("Added user with id: %s" % added_user)
 
 	if content_type == "text":
 		parsed = telepot.routing.by_chat_command(pass_args=True, separator=' ')(msg)
@@ -217,7 +222,7 @@ def handle(bot, msg):
 
 		if command_typed in commands_group:
 			if chat["type"] == "group":
-				if command_typed == commands_group["PRESENTATION"]: # l'utente si è presentato
+				if command_typed == commands_group["PRESENTATION"]:  # l'utente si è presentato
 					group_id = chat_id
 					user_id = user["id"]
 
@@ -252,8 +257,6 @@ def main(argv):
 
 	bot = telepot.Bot(os.environ["CEM"])
 	bot_id = bot.getMe()["id"]
-
-	set_language("IT")
 
 	telepot.loop.MessageLoop(bot, handle=(lambda msg: handle(bot, msg))).run_as_thread()
 	print('Listening ...')
