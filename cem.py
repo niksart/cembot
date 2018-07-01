@@ -22,6 +22,15 @@ def is_username(s):
 	return len(s) - 1 > 4 and s[0] == "@"
 
 
+#TODO falla come i cristiani
+def is_numeric(id):
+	try:
+		n = int(id)
+	except Exception as e:
+		return False
+	return True
+
+
 def get_function_by_key(key):
 	if key == "AUTHORIZE":
 		return authorize
@@ -71,12 +80,12 @@ def authorize(bot, user, chat, args):
 	if is_username(args[0]):
 		authorized_username = args[0][1:]
 		authorized_id = dbman.get_id_by_username(authorized_username)
-	elif is_username("@" + args[0]):
-		bot.sendMessage(chat["id"], error["maybe_you_wrote_an_username_instead_id"])
-		return
-	else:
+	elif is_numeric(args[0]):
 		authorized_id = int(args[0])
 		authorized_username = str(authorized_id)
+	else:
+		bot.sendMessage(chat["id"], error["maybe_you_wrote_an_username_instead_id"])
+		return
 
 	# only if user wrote an unregistered username
 	if authorized_id is None:
@@ -105,12 +114,13 @@ def deauthorize(bot, user, chat, args):
 	if is_username(args[0]):
 		deauthorized_username = args[0][1:]
 		deauthorized_id = dbman.get_id_by_username(deauthorized_username)
-	elif is_username("@" + args[0]):
-		bot.sendMessage(chat["id"], error["maybe_you_wrote_an_username_instead_id"])
-		return
-	else:
+	elif is_numeric(args[0]):
 		deauthorized_id = int(args[0])
 		deauthorized_username = str(deauthorized_id)
+	else:
+		bot.sendMessage(chat["id"], error["maybe_you_wrote_an_username_instead_id"])
+		return
+
 
 	if deauthorized_id is None:
 		bot.sendMessage(chat["id"], error["user_unregistered(user)"] % deauthorized_username, parse_mode="Markdown")
@@ -128,6 +138,7 @@ def deauthorize(bot, user, chat, args):
 	dbman.close_cursor(cur)
 
 
+# TODO aggiungere la descrizione al comando given
 def given(bot, user, chat, args):
 	payer_id = int(user["id"])
 
@@ -145,12 +156,12 @@ def given(bot, user, chat, args):
 	if is_username(args[1]):
 		payee_username = args[1][1:]
 		payee_id = dbman.get_id_by_username(payee_username)
-	elif is_username("@" + args[1]):
-		bot.sendMessage(chat["id"], error["maybe_you_wrote_an_username_instead_id"])
-		return
-	else:
+	elif is_numeric(args[1]):
 		payee_id = int(args[1])
 		payee_username = str(payee_id)
+	else:
+		bot.sendMessage(chat["id"], error["maybe_you_wrote_an_username_instead_id"])
+		return
 
 	if payee_id is None:
 		bot.sendMessage(chat["id"], error["user_unregistered(user)"] % payee_username, parse_mode="Markdown")
@@ -170,12 +181,12 @@ def given(bot, user, chat, args):
 		dbman.close_cursor(cur)
 	except Exception as e:
 		print("An error occured in /giving command: %s" % e)
+		dbman.conn.rollback()
 		return
 
 	bot.sendMessage(chat["id"], info["transaction_succeed"], parse_mode="Markdown")
 
 
-####################
 def spent(bot, user, chat, args):
 	payer_id = int(user["id"])
 
@@ -187,14 +198,31 @@ def spent(bot, user, chat, args):
 		amountstr = args[0].replace(',', '.').replace('€', '')
 		amount = int(100 * float(amountstr))
 	except ValueError:
-		bot.sendMessage(chat["id"], ["amount_money_not_valid"])
+		bot.sendMessage(chat["id"], error["amount_money_not_valid"])
 		return
 
 	description = args[1]
 
+	try:
+		cur = dbman.get_cursor()
+		cur.execute("INSERT INTO transactions (payer, description, amount, time, group_id) VALUES (%s, %s, %s, %s, %s) RETURNING id", (payer_id, description, amount, int(time.time()), chat["id"]))
+		id_new_transaction = cur.fetchone()[0]
+		dbman.commit_changes()
 
-# TODO continue...
-######################
+		# get all id of the group
+		users = dbman.get_id_members_by_group(chat["id"])
+
+		# inserisci n payees, uno per ogni appartenente al gruppo
+		for payee_id in users:
+			cur.execute("INSERT INTO payees (transaction_id, payee) VALUES (%s, %s)", (id_new_transaction, payee_id))
+
+		dbman.close_cursor(cur)
+	except Exception as e:
+		print("An error occured in /spent command: %s" % e)
+		dbman.conn.rollback()
+		return
+
+	bot.sendMessage(chat["id"], info["transaction_succeed"], parse_mode="Markdown")
 
 
 def myid(bot, user, chat, args):

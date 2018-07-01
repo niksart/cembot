@@ -80,3 +80,13 @@ class DBManager:
 		ret = int(cur.fetchone()[0])
 		self.close_cursor(cur)
 		return ret
+
+	def get_id_members_by_group(self, group_id):
+		cur = self.conn.cursor()
+		cur.execute("SELECT user_id FROM belongings WHERE group_id=%s", (group_id,))
+		temp = cur.fetchall()
+		ret = []
+		for (a,) in temp:
+			ret.append(a)
+		self.close_cursor(cur)
+		return ret
