@@ -56,6 +56,13 @@ class DBManager:
 			cur.execute("INSERT INTO belongings (group_id, user_id) VALUES (%s,%s)", (group_id, user_id))
 		self.close_cursor(cur)
 
+	def remove_belonging(self, user_id, group_id):
+		cur = self.conn.cursor()
+		cur.execute("SELECT * FROM belongings WHERE group_id=%s AND user_id=%s", (group_id, user_id))
+		if not cur.fetchone() is None:
+			cur.execute("DELETE FROM belongings WHERE group_id=%s AND user_id=%s", (group_id, user_id))
+		self.close_cursor(cur)
+
 	def check_existence_group(self, group_id):
 		cur = self.conn.cursor()
 		cur.execute("SELECT * FROM belongings WHERE group_id=%s", (group_id, ))

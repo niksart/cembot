@@ -69,6 +69,9 @@ def authorize(bot, user, chat, args):
 	if is_username(args[0]):
 		authorized_username = args[0][1:]
 		authorized_id = dbman.get_id_by_username(authorized_username)
+	elif is_username("@" + args[0]):
+		bot.sendMessage(chat["id"], error["maybe_you_wrote_an_username_instead_id"])
+		return
 	else:
 		authorized_id = int(args[0])
 		authorized_username = str(authorized_id)
@@ -100,6 +103,9 @@ def deauthorize(bot, user, chat, args):
 	if is_username(args[0]):
 		deauthorized_username = args[0][1:]
 		deauthorized_id = dbman.get_id_by_username(deauthorized_username)
+	elif is_username("@" + args[0]):
+		bot.sendMessage(chat["id"], error["maybe_you_wrote_an_username_instead_id"])
+		return
 	else:
 		deauthorized_id = int(args[0])
 		deauthorized_username = str(deauthorized_id)
@@ -137,6 +143,9 @@ def given(bot, user, chat, args):
 	if is_username(args[1]):
 		payee_username = args[1][1:]
 		payee_id = dbman.get_id_by_username(payee_username)
+	elif is_username("@" + args[1]):
+		bot.sendMessage(chat["id"], error["maybe_you_wrote_an_username_instead_id"])
+		return
 	else:
 		payee_id = int(args[1])
 		payee_username = str(payee_id)
@@ -205,9 +214,15 @@ def handle(bot, msg):
 		if added_user == bot_id:
 			bot.sendMessage(chat_id, info["introduced_in_group"])
 		else:
-			# add the new user to group TODO
-			if DEBUG:
-				print("Added user with id: %s" % added_user)
+			dbman.check_belonging_existence(added_user, chat_id)
+
+	if content_type == "left_chat_member" and chat_type == "group":
+		removed_user = msg["left_chat_member"]["id"]
+		dbman.remove_belonging(removed_user, chat_id)
+
+	# o se sono stato aggiunto al momento della creazione del gruppo invio il messaggio
+	if content_type == "group_chat_created":
+		bot.sendMessage(chat_id, info["introduced_in_group"])
 
 	if content_type == "text":
 		parsed = telepot.routing.by_chat_command(pass_args=True, separator=' ')(msg)
@@ -222,7 +237,7 @@ def handle(bot, msg):
 
 		if command_typed in commands_group:
 			if chat["type"] == "group":
-				if command_typed == commands_group["PRESENTATION"]:  # l'utente si è presentato
+				if commands_group[command_typed] == "PRESENTATION":  # l'utente si è presentato
 					group_id = chat_id
 					user_id = user["id"]
 

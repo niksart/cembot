@@ -6,7 +6,8 @@ EN = {
     "lack_of_authorization(user)": "The user @%s has not authorized you for charging expenses.",
 	"user_unregistered(user)": "The user @%s that you want to add as a payee is not registered on our system",
 	"can't_deauthorize_cause_not_authorized_yet": "You have not already authorized this user. You can't deauthorize it.",
-	"have_authorized_yet_this_user": "You have already authorized this user."
+	"have_authorized_yet_this_user": "You have already authorized this user.",
+	"maybe_you_wrote_an_username_instead_id": "This is not a numeric id. If you intended to write an username write it with a @ at the beginning."
 }
 
 IT = {
@@ -17,5 +18,6 @@ IT = {
     "lack_of_authorization(user)": "L'utente @%s non ti ha autorizzato a caricargli debiti.",
 	"user_unregistered(user)": "L'utente @%s che vuoi aggiungere come beneficiario non è registrato nel nostro sistema.",
 	"can't_deauthorize_cause_not_authorized_yet": "Non hai già autorizzato questo utente. Non puoi deautorizzarlo.",
-	"have_authorized_yet_this_user": "Hai già autorizzato questo utente."
+	"have_authorized_yet_this_user": "Hai già autorizzato questo utente.",
+	"maybe_you_wrote_an_username_instead_id": "Questo non è un id numerico. Se intendevi scrivere un username scrivilo con la @ davanti."
 }
