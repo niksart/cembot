@@ -31,6 +31,8 @@ def get_function_by_key(key):
 		return given
 	if key == "SPENT":
 		return spent
+	if key == "MYID":
+		return myid
 
 
 def set_language(lang):
@@ -193,6 +195,10 @@ def spent(bot, user, chat, args):
 
 # TODO continue...
 ######################
+
+
+def myid(bot, user, chat, args):
+	bot.sendMessage(chat["id"], info["your_id_is(id)"] % user["id"])
 
 
 def handle(bot, msg):

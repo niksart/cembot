@@ -11,6 +11,7 @@ EN = {
 
 	"authorized_confirm(user)": "User @%s has been authorized.",
 	"deauthorized_confirm(user)": "User @%s has been deauthorized.",
+	"your_id_is(id)": "Your Telegram id is %s. You can add in Telegram settings an username and use cembot more easily."
 }
 
 IT = {
@@ -26,4 +27,5 @@ IT = {
 
 	"authorized_confirm(user)": "L'utente @%s è stato autorizzato a caricarti debiti.",
 	"deauthorized_confirm(user)": "L'utente @%s è stato deautorizzato, non potrà più caricarti debiti.",
+	"your_id_is(id)": "Il tuo id Telegram è %s. Puoi impostare un username dalle impostazioni Telegram per usare cembot più facilmente."
 }
