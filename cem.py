@@ -79,7 +79,7 @@ def authorize(bot, user, chat, args):
 	authorizer_id = int(user["id"])
 
 	if len(args) != 1:
-		bot.sendMessage(chat["id"], helper["AUTHORIZE"], parse_mode="Markdown")
+		bot.sendMessage(chat["id"], helper["AUTHORIZE"], parse_mode="HTML")
 		return
 
 	if is_username(args[0]):
@@ -94,7 +94,7 @@ def authorize(bot, user, chat, args):
 
 	# only if user wrote an unregistered username
 	if authorized_id is None:
-		bot.sendMessage(chat["id"], error["user_unregistered(user)"] % authorized_username, parse_mode="Markdown")
+		bot.sendMessage(chat["id"], error["user_unregistered(user)"] % authorized_username, parse_mode="HTML")
 		return
 
 	# print("%s: 'please authorize this user: %s'" % (authorizer_id, authorized_id))
@@ -113,7 +113,7 @@ def deauthorize(bot, user, chat, args):
 	deauthorizer_id = int(user["id"])
 
 	if len(args) != 1:
-		bot.sendMessage(chat["id"], helper["DEAUTHORIZE"], parse_mode="Markdown")
+		bot.sendMessage(chat["id"], helper["DEAUTHORIZE"], parse_mode="HTML")
 		return
 
 	if is_username(args[0]):
@@ -128,7 +128,7 @@ def deauthorize(bot, user, chat, args):
 
 
 	if deauthorized_id is None:
-		bot.sendMessage(chat["id"], error["user_unregistered(user)"] % deauthorized_username, parse_mode="Markdown")
+		bot.sendMessage(chat["id"], error["user_unregistered(user)"] % deauthorized_username, parse_mode="HTML")
 		return
 
 	# print("%s: 'please deauthorize this user: %s'" % (deauthorizer_id, deauthorized_id))
@@ -147,7 +147,7 @@ def given(bot, user, chat, args):
 	payer_id = int(user["id"])
 
 	if len(args) < 3:
-		bot.sendMessage(chat["id"], helper["GIVEN"], parse_mode="Markdown")
+		bot.sendMessage(chat["id"], helper["GIVEN"], parse_mode="HTML")
 		return
 
 	try:
@@ -170,11 +170,11 @@ def given(bot, user, chat, args):
 	description = stringify(args[2:])
 
 	if payee_id is None:
-		bot.sendMessage(chat["id"], error["user_unregistered(user)"] % payee_username, parse_mode="Markdown")
+		bot.sendMessage(chat["id"], error["user_unregistered(user)"] % payee_username, parse_mode="HTML")
 		return
 
 	if not dbman.test_authorization(payee_id, payer_id):  # if payee has not authorized the payer exit
-		bot.sendMessage(chat["id"], error["lack_of_authorization(user)"] % payee_username, parse_mode="Markdown")
+		bot.sendMessage(chat["id"], error["lack_of_authorization(user)"] % payee_username, parse_mode="HTML")
 		return
 
 	try:
@@ -190,14 +190,14 @@ def given(bot, user, chat, args):
 		dbman.conn.rollback()
 		return
 
-	bot.sendMessage(chat["id"], info["transaction_succeed"], parse_mode="Markdown")
+	bot.sendMessage(chat["id"], info["transaction_succeed"], parse_mode="HTML")
 
 
 def spent(bot, user, chat, args):
 	payer_id = int(user["id"])
 
 	if len(args) < 2:
-		bot.sendMessage(chat["id"], helper["SPENT"], parse_mode="Markdown")
+		bot.sendMessage(chat["id"], helper["SPENT"], parse_mode="HTML")
 		return
 
 	try:
@@ -228,12 +228,12 @@ def spent(bot, user, chat, args):
 		dbman.conn.rollback()
 		return
 
-	bot.sendMessage(chat["id"], info["transaction_succeed"], parse_mode="Markdown")
+	bot.sendMessage(chat["id"], info["transaction_succeed"], parse_mode="HTML")
 
 
 def myid(bot, user, chat, args):
 	if len(args) != 0:
-		bot.sendMessage(chat["id"], helper["MYID"], parse_mode="Markdown")
+		bot.sendMessage(chat["id"], helper["MYID"], parse_mode="HTML")
 		return
 	bot.sendMessage(chat["id"], info["your_id_is(id)"] % user["id"])
 
@@ -252,7 +252,7 @@ def balance(bot, user, chat, args):
 			else:
 				user2 = "@" + user2_username
 			message += info["balance_with_other_user(user,balance)"] % (user2, dbman.get_balance(user1_id, user2_id)) + "\n"
-		bot.sendMessage(chat["id"], message, parse_mode="Markdown")
+		bot.sendMessage(chat["id"], message, parse_mode="HTML")
 	elif len(args) == 1:
 		# bilancio verso user
 		if is_username(args[0]):
@@ -271,7 +271,7 @@ def balance(bot, user, chat, args):
 			user2 = "@" + user2_username
 		bot.sendMessage(chat["id"], info["balance_with_other_user(user,balance)"] % (user2, dbman.get_balance(user1_id, user2_id)))
 	else:
-		bot.sendMessage(chat["id"], helper["BALANCE"], parse_mode="Markdown")
+		bot.sendMessage(chat["id"], helper["BALANCE"], parse_mode="HTML")
 		return
 
 
@@ -326,11 +326,11 @@ def handle(bot, msg):
 					number_members_db = dbman.get_number_members_group(group_id)
 					number_members = int(bot.getChatMembersCount(chat["id"])) - 1
 					if number_members == number_members_db:
-						bot.sendMessage(chat["id"], info["each_member_introduced"], parse_mode="Markdown")
+						bot.sendMessage(chat["id"], info["each_member_introduced"], parse_mode="HTML")
 					elif number_members == number_members_db + 1:
-						bot.sendMessage(chat["id"], info["person_missing"], parse_mode="Markdown")
+						bot.sendMessage(chat["id"], info["person_missing"], parse_mode="HTML")
 					else:
-						bot.sendMessage(chat["id"], "%s" + info["people_missing"], parse_mode="Markdown")
+						bot.sendMessage(chat["id"], "%s" + info["people_missing"], parse_mode="HTML")
 				else:
 					get_function_by_key(commands_group[command_typed])(bot, user, chat, text_after_command)
 			else:

@@ -133,9 +133,9 @@ class DBManager:
 		total_amount = 0
 		for (payer, payee, amount) in temp:
 			if payer == user1_id and payee == user2_id:
-				total_amount += amount
+				total_amount = total_amount + amount
 			if payer == user2_id and payee == user1_id:
-				total_amount -+ amount
+				total_amount = total_amount - amount
 		self.close_cursor(cur)
 
 		return total_amount/100
