@@ -67,9 +67,14 @@ class DBManager:
 		cur = self.conn.cursor()
 		username = user["username"]
 		id_user = int(user["id"])
-		cur.execute("SELECT * FROM idmappings WHERE username=%s", (username,))
-		if cur.fetchone() is None:
+		cur.execute("SELECT id, username FROM idmappings WHERE id=%s", (id_user,))
+		occurrence = cur.fetchone()
+		if occurrence is None:
 			cur.execute("INSERT INTO idmappings (username, id) VALUES (%s,%s)", (username, id_user))
+		else:
+			(id_db, username_db) = occurrence
+			if username_db != username:
+				cur.execute("UPDATE idmappings SET username=%s WHERE id=%s", (username, id_user))
 		self.close_cursor(cur)
 
 	def test_authorization(self, authorizer_id, authorized_id):

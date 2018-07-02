@@ -3,6 +3,7 @@
 import telepot
 import telepot.routing
 import telepot.loop
+import telepot.text
 import time
 import sys
 import os
@@ -244,14 +245,16 @@ def balance(bot, user, chat, args):
 	if len(args) == 0:
 		# bilancio totale
 		people = dbman.get_set_users_involved_with_me(user1_id)
-		message = ""
+		message = info["header_total_balance"]
 		for user2_id in people:
 			user2_username = dbman.get_username_by_id(user2_id)
 			if user2_username == None:
 				user2 = user2_id
 			else:
 				user2 = "@" + user2_username
-			message += info["balance_with_other_user(user,balance)"] % (user2, dbman.get_balance(user1_id, user2_id)) + "\n"
+			credit_or_debit = dbman.get_balance(user1_id, user2_id)
+			credit_or_debit_string = "+" + str(credit_or_debit) if credit_or_debit > 0 else str(credit_or_debit)
+			message += "%s : <b>%s</b>\n" % (user2, credit_or_debit_string)
 		bot.sendMessage(chat["id"], message, parse_mode="HTML")
 	elif len(args) == 1:
 		# bilancio verso user
