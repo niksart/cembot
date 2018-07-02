@@ -20,6 +20,24 @@ class DBManager:
 	def commit_changes(self):
 		self.conn.commit()
 
+	def get_set_users_involved_with_me(self, user_id):
+		cur = self.conn.cursor()
+		cur.execute("SELECT T.payer, P.payee "
+		            "FROM transactions AS T, payees AS P "
+		            "WHERE T.id = P.transaction_id "
+		            "AND (T.payer = %s OR P.payee = %s)",
+		            (user_id, user_id))
+		temp = cur.fetchall()
+		people = set()
+		for (payer, payee) in temp:
+			if payer != user_id:
+				people.add(payer)
+			if payee != user_id:
+				people.add(payee)
+		self.close_cursor(cur)
+
+		return people
+
 	def get_id_by_username(self, username):
 		cur = self.conn.cursor()
 		cur.execute("SELECT id FROM idmappings WHERE username=%s", (username, ))
@@ -31,6 +49,19 @@ class DBManager:
 
 		self.close_cursor(cur)
 		return ret
+
+	def get_username_by_id(self, id):
+		cur = self.conn.cursor()
+		cur.execute("SELECT username FROM idmappings WHERE id=%s", (id,))
+		row = cur.fetchone()
+		if row is None:
+			username = None
+		else:
+			username = row[0]
+
+		self.close_cursor(cur)
+
+		return username
 
 	def update_username_id_mapping(self, user):
 		cur = self.conn.cursor()
@@ -90,3 +121,21 @@ class DBManager:
 			ret.append(a)
 		self.close_cursor(cur)
 		return ret
+
+	def get_balance(self, user1_id, user2_id):
+		cur = self.conn.cursor()
+		cur.execute("SELECT T.payer, P.payee, T.amount "
+		            "FROM transactions AS T, payees AS P "
+		            "WHERE T.id = P.transaction_id "
+		            "AND ((T.payer = %s AND P.payee = %s) OR (T.payer = %s AND P.payee = %s))",
+		            (user1_id, user2_id, user2_id, user1_id))
+		temp = cur.fetchall()
+		total_amount = 0
+		for (payer, payee, amount) in temp:
+			if payer == user1_id and payee == user2_id:
+				total_amount += amount
+			if payer == user2_id and payee == user1_id:
+				total_amount -+ amount
+		self.close_cursor(cur)
+
+		return total_amount/100

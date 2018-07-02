@@ -22,15 +22,6 @@ def is_username(s):
 	return len(s) - 1 > 4 and s[0] == "@"
 
 
-#TODO falla come i cristiani
-def is_numeric(id):
-	try:
-		n = int(id)
-	except Exception as e:
-		return False
-	return True
-
-
 def get_function_by_key(key):
 	if key == "AUTHORIZE":
 		return authorize
@@ -42,6 +33,8 @@ def get_function_by_key(key):
 		return spent
 	if key == "MYID":
 		return myid
+	if key == "BALANCE":
+		return balance
 
 
 def set_language(lang):
@@ -67,6 +60,18 @@ def set_language(lang):
 		helper = helpers.EN
 
 
+def stringify(list):
+	ret = ""
+	firstWord = True
+	for word in list:
+		if firstWord:
+			ret = word
+			firstWord = False
+		else:
+			ret = ret + ' ' + word
+	return ret
+
+
 #########################
 
 
@@ -80,7 +85,7 @@ def authorize(bot, user, chat, args):
 	if is_username(args[0]):
 		authorized_username = args[0][1:]
 		authorized_id = dbman.get_id_by_username(authorized_username)
-	elif is_numeric(args[0]):
+	elif (args[0]).isnumeric():
 		authorized_id = int(args[0])
 		authorized_username = str(authorized_id)
 	else:
@@ -114,7 +119,7 @@ def deauthorize(bot, user, chat, args):
 	if is_username(args[0]):
 		deauthorized_username = args[0][1:]
 		deauthorized_id = dbman.get_id_by_username(deauthorized_username)
-	elif is_numeric(args[0]):
+	elif (args[0]).isnumeric():
 		deauthorized_id = int(args[0])
 		deauthorized_username = str(deauthorized_id)
 	else:
@@ -138,11 +143,10 @@ def deauthorize(bot, user, chat, args):
 	dbman.close_cursor(cur)
 
 
-# TODO aggiungere la descrizione al comando given
 def given(bot, user, chat, args):
 	payer_id = int(user["id"])
 
-	if len(args) != 2:
+	if len(args) < 3:
 		bot.sendMessage(chat["id"], helper["GIVEN"], parse_mode="Markdown")
 		return
 
@@ -156,12 +160,14 @@ def given(bot, user, chat, args):
 	if is_username(args[1]):
 		payee_username = args[1][1:]
 		payee_id = dbman.get_id_by_username(payee_username)
-	elif is_numeric(args[1]):
+	elif (args[1]).isnumeric():
 		payee_id = int(args[1])
 		payee_username = str(payee_id)
 	else:
 		bot.sendMessage(chat["id"], error["maybe_you_wrote_an_username_instead_id"])
 		return
+
+	description = stringify(args[2:])
 
 	if payee_id is None:
 		bot.sendMessage(chat["id"], error["user_unregistered(user)"] % payee_username, parse_mode="Markdown")
@@ -173,7 +179,7 @@ def given(bot, user, chat, args):
 
 	try:
 		cur = dbman.get_cursor()
-		cur.execute("INSERT INTO transactions (payer, amount, time) VALUES (%s, %s, %s) RETURNING id", (payer_id, amount, int(time.time())))
+		cur.execute("INSERT INTO transactions (payer, amount, time, description) VALUES (%s, %s, %s, %s) RETURNING id", (payer_id, amount, int(time.time()), description))
 		id_new_transaction = cur.fetchone()[0]
 		dbman.commit_changes()
 
@@ -190,7 +196,7 @@ def given(bot, user, chat, args):
 def spent(bot, user, chat, args):
 	payer_id = int(user["id"])
 
-	if len(args) != 2:
+	if len(args) < 2:
 		bot.sendMessage(chat["id"], helper["SPENT"], parse_mode="Markdown")
 		return
 
@@ -201,7 +207,7 @@ def spent(bot, user, chat, args):
 		bot.sendMessage(chat["id"], error["amount_money_not_valid"])
 		return
 
-	description = args[1]
+	description = stringify(args[1:])
 
 	try:
 		cur = dbman.get_cursor()
@@ -226,7 +232,47 @@ def spent(bot, user, chat, args):
 
 
 def myid(bot, user, chat, args):
+	if len(args) != 0:
+		bot.sendMessage(chat["id"], helper["MYID"], parse_mode="Markdown")
+		return
 	bot.sendMessage(chat["id"], info["your_id_is(id)"] % user["id"])
+
+
+def balance(bot, user, chat, args):
+	user1_id = user["id"]
+
+	if len(args) == 0:
+		# bilancio totale
+		people = dbman.get_set_users_involved_with_me(user1_id)
+		message = ""
+		for user2_id in people:
+			user2_username = dbman.get_username_by_id(user2_id)
+			if user2_username == None:
+				user2 = user2_id
+			else:
+				user2 = "@" + user2_username
+			message += info["balance_with_other_user(user,balance)"] % (user2, dbman.get_balance(user1_id, user2_id)) + "\n"
+		bot.sendMessage(chat["id"], message, parse_mode="Markdown")
+	elif len(args) == 1:
+		# bilancio verso user
+		if is_username(args[0]):
+			user2_username = args[0][1:]
+			user2_id = dbman.get_id_by_username(user2_username)
+		elif (args[0]).isnumeric():
+			user2_id = int(args[0])
+			user2_username = None
+		else:
+			bot.sendMessage(chat["id"], error["maybe_you_wrote_an_username_instead_id"])
+			return
+		# ora ho user1_id e user2_id
+		if user2_username == None:
+			user2 = user2_id
+		else:
+			user2 = "@" + user2_username
+		bot.sendMessage(chat["id"], info["balance_with_other_user(user,balance)"] % (user2, dbman.get_balance(user1_id, user2_id)))
+	else:
+		bot.sendMessage(chat["id"], helper["BALANCE"], parse_mode="Markdown")
+		return
 
 
 def handle(bot, msg):
