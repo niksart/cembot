@@ -26,7 +26,13 @@ CREATE TABLE authorizations (
 CREATE TABLE idmappings (
     username         varchar(20),
     id               integer,
-    PRIMARY KEY (username, id)
+    PRIMARY KEY (id)
+)
+
+CREATE TABLE groupmappings (
+    name             text,
+    id               integer,
+    PRIMARY KEY (id)
 )
 
 CREATE TABLE belongings (

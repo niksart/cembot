@@ -85,6 +85,18 @@ class DBManager:
 		else:
 			return False
 
+	def update_groupname_id_mappings(self, group_id, group_name):
+		cur = self.conn.cursor()
+		cur.execute("SELECT name FROM groupmappings WHERE id=%s", (group_id,))
+		occurrence = cur.fetchone()
+		if occurrence is None:
+			cur.execute("INSERT INTO groupmappings (id, name) VALUES (%s,%s)", (group_id, group_name))
+		else: #controllo che il nome settato sia uguale al group name, se no lo aggiorno
+			(name_db,) = occurrence
+			if name_db != group_name:
+				cur.execute("UPDATE groupmappings SET name=%s WHERE id=%s", (group_name, group_id))
+		self.close_cursor(cur)
+
 	def check_belonging_existence(self, user_id, group_id):
 		cur = self.conn.cursor()
 		cur.execute("SELECT * FROM belongings WHERE group_id=%s AND user_id=%s", (group_id, user_id))

@@ -1,5 +1,5 @@
 EN = {
-	"command_unavailable_for_private": "For using this command open a private chat with @coexmabot.",
+	"command_unavailable_for_private": "For using this command open a private chat with @en_cembot.",
 	"command_unavailable_for_group": "For using this command add @coexmabot in a group.",
 	"amount_money_not_valid": "Amount of money not valid.",
 
@@ -11,7 +11,7 @@ EN = {
 }
 
 IT = {
-	"command_unavailable_for_private": "Per usare questo comando apri una chat privata con @coexmabot.",
+	"command_unavailable_for_private": "Per usare questo comando apri una chat privata con @it_cembot.",
 	"command_unavailable_for_group": "Per usare questo comando inserisci @coexmabot in un gruppo.",
 	"amount_money_not_valid": "Quantità di soldi non valida.",
 

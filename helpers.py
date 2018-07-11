@@ -1,8 +1,8 @@
 EN = {
-	"AUTHORIZE": "Usage: `/authorize @<username>` or `/authorize <user id>",
-	"DEAUTHORIZE": "Usage: `/deauthorize @<user> or `/deauthorize <user id>`",
-	"GIVEN": "Usage: `/given <amount> @<user> <description>`",
-	"SPENT": "Usage: `/spent <amount> <description>`. Payees are all the members of the group, including the payer.",
+	"AUTHORIZE": "Usage: /authorize @<username> or /authorize <user id>",
+	"DEAUTHORIZE": "Usage: /deauthorize @<user> or /deauthorize <user id>",
+	"GIVEN": "Usage: /given amount @user description",
+	"SPENT": "Usage: /spent <amount> <description>. Payees are all the members of the group, including the payer.",
 	"MYID": ""
 }
 
