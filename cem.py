@@ -36,6 +36,10 @@ def get_function_by_key(key):
 		return myid
 	if key == "BALANCE":
 		return balance
+	if key == "START":
+		return start
+	if key == "COMMANDS":
+		return commands_list
 
 
 def set_language(lang):
@@ -61,13 +65,13 @@ def set_language(lang):
 		helper = helpers.EN
 
 
-def stringify(list):
+def stringify(list_of_words):
 	ret = ""
-	firstWord = True
-	for word in list:
-		if firstWord:
+	first_word = True
+	for word in list_of_words:
+		if first_word:
 			ret = word
-			firstWord = False
+			first_word = False
 		else:
 			ret = ret + ' ' + word
 	return ret
@@ -126,7 +130,6 @@ def deauthorize(bot, user, chat, args):
 	else:
 		bot.sendMessage(chat["id"], error["maybe_you_wrote_an_username_instead_id"])
 		return
-
 
 	if deauthorized_id is None:
 		bot.sendMessage(chat["id"], error["user_unregistered(user)"] % deauthorized_username, parse_mode=parse_mode)
@@ -210,33 +213,46 @@ def spent(bot, user, chat, args):
 
 	description = stringify(args[1:])
 
-	try:
-		cur = dbman.get_cursor()
-		cur.execute("INSERT INTO transactions (payer, description, amount, time, group_id) VALUES (%s, %s, %s, %s, %s) RETURNING id", (payer_id, description, amount, int(time.time()), chat["id"]))
-		id_new_transaction = cur.fetchone()[0]
-		dbman.commit_changes()
+	number_members_group_db = dbman.get_number_members_group(chat["id"])
+	number_members_group_telegram = int(bot.getChatMembersCount(chat["id"])) - 1
 
-		# get all id of the group
-		users = dbman.get_id_members_by_group(chat["id"])
+	if number_members_group_db == number_members_group_telegram:
+		try:
+			cur = dbman.get_cursor()
+			cur.execute("INSERT INTO transactions (payer, description, amount, time, group_id) VALUES (%s, %s, %s, %s, %s) RETURNING id", (payer_id, description, amount/number_members_group_db, int(time.time()), chat["id"]))
+			id_new_transaction = cur.fetchone()[0]
+			dbman.commit_changes()
 
-		# inserisci n payees, uno per ogni appartenente al gruppo
-		for payee_id in users:
-			cur.execute("INSERT INTO payees (transaction_id, payee) VALUES (%s, %s)", (id_new_transaction, payee_id))
+			# get all id of the group
+			users = dbman.get_id_members_by_group(chat["id"])
 
-		dbman.close_cursor(cur)
-	except Exception as e:
-		print("An error occured in /spent command: %s" % e)
-		dbman.conn.rollback()
-		return
+			# inserisci n payees, uno per ogni appartenente al gruppo
+			for payee_id in users:
+				cur.execute("INSERT INTO payees (transaction_id, payee) VALUES (%s, %s)", (id_new_transaction, payee_id))
 
-	bot.sendMessage(chat["id"], info["transaction_succeed"], parse_mode=parse_mode)
+			dbman.close_cursor(cur)
+		except Exception as e:
+			print("An error occured in /spent command: %s" % e)
+			dbman.conn.rollback()
+			return
 
+		bot.sendMessage(chat["id"], info["transaction_succeed"], parse_mode=parse_mode)
+	else:
+		bot.sendMessage(chat["id"], error["waiting_for_all_users"], parse_mode=parse_mode)
 
 def myid(bot, user, chat, args):
 	if len(args) != 0:
 		bot.sendMessage(chat["id"], helper["MYID"], parse_mode=parse_mode)
 		return
 	bot.sendMessage(chat["id"], info["your_id_is(id)"] % user["id"])
+
+
+def start(bot, user, chat, args):
+	bot.sendMessage(chat["id"], info["start"])
+
+
+def commands_list(bot, user, chat, args):
+	bot.sendMessage(chat["id"], info["commands"])
 
 
 def balance(bot, user, chat, args):
@@ -250,7 +266,7 @@ def balance(bot, user, chat, args):
 
 		for user2_id in people:
 			user2_username = dbman.get_username_by_id(user2_id)
-			if user2_username == None:
+			if user2_username is None:
 				user2 = user2_id
 			else:
 				user2 = "@" + user2_username
@@ -258,9 +274,9 @@ def balance(bot, user, chat, args):
 			credit_or_debit_string = "{:=+7.2f}".format(credit_or_debit)
 
 			if credit_or_debit > 0:
-				message_credit += "%s → %s " % (user2, credit_or_debit_string) + currency + "\n"
+				message_credit += "%s, %s " % (user2, credit_or_debit_string) + currency + "\n"
 			elif credit_or_debit < 0:
-				message_debit += "%s → %s " % (user2, credit_or_debit_string) + currency + "\n"
+				message_debit += "%s, %s " % (user2, credit_or_debit_string) + currency + "\n"
 
 		message = info["header_balance_credit"]
 		message += message_credit
@@ -280,11 +296,11 @@ def balance(bot, user, chat, args):
 			bot.sendMessage(chat["id"], error["maybe_you_wrote_an_username_instead_id"])
 			return
 		# ora ho user1_id e user2_id
-		if user2_username == None:
+		if user2_username is None:
 			user2 = user2_id
 		else:
 			user2 = "@" + user2_username
-		bot.sendMessage(chat["id"], info["balance_with_other_user(user,balance)"] % (user2, dbman.get_balance(user1_id, user2_id)))
+		bot.sendMessage(chat["id"], info["balance_with_other_user(user,balance)"] % (user2, "{:=+7.2f}".format(dbman.get_balance(user1_id, user2_id))))
 	else:
 		bot.sendMessage(chat["id"], helper["BALANCE"], parse_mode=parse_mode)
 		return

@@ -12,12 +12,13 @@ EN = {
 
 IT = {
 	"command_unavailable_for_private": "Per usare questo comando apri una chat privata con @it_cembot.",
-	"command_unavailable_for_group": "Per usare questo comando inserisci @coexmabot in un gruppo.",
+	"command_unavailable_for_group": "Per usare questo comando inserisci @it_cembot in un gruppo.",
 	"amount_money_not_valid": "Quantità di soldi non valida.",
 
-    "lack_of_authorization(user)": "L'utente @%s non ti ha autorizzato a caricargli debiti.",
-	"user_unregistered(user)": "L'utente @%s che vuoi aggiungere come beneficiario non è registrato nel nostro sistema.",
-	"can't_deauthorize_cause_not_authorized_yet": "Non hai già autorizzato questo utente. Non puoi deautorizzarlo.",
+	"waiting_for_all_users": "Non tutti gli utenti si sono presentati.\nPresentatevi con /presente prima di aggiungere spese.",
+    "lack_of_authorization(user)": "L'utente @%s non ti ha autorizzato a caricare spese sul suo conto. Contattalo per farti autorizzare.",
+	"user_unregistered(user)": "L'utente @%s non è registrato nel nostro sistema.",
+	"can't_deauthorize_cause_not_authorized_yet": "Non hai già autorizzato questo utente. Dunque non puoi revocarne l'autorizzazione.",
 	"have_authorized_yet_this_user": "Hai già autorizzato questo utente.",
 	"maybe_you_wrote_an_username_instead_id": "Questo non è un id numerico. Se intendevi scrivere un username scrivilo con la @ davanti."
 }
