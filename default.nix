@@ -3,11 +3,11 @@ with import <nixpkgs> {};
 let
 telepot = pythonPackages.buildPythonPackage rec {
   pname = "telepot";
-  version = "12.6";
+  version = "12.7";
 
   src = pythonPackages.fetchPypi {
     inherit pname version;
-    sha256 = "05883283ib7690s6kq7i8a3pwa5chgjxxn2vcwr7jj34fp1yyxwv";
+    sha256 = "1c587dmr71ppray0lzxgib1plnndmaiwal1kaiqx82rdwx4kw4ms";
   };
 
   propagatedBuildInputs = with pythonPackages; [ urllib3 ];
