@@ -27,7 +27,7 @@ in python3.pkgs.buildPythonApplication rec {
           --add-flags "$out/share/cem.py"
   '';
 
-  src = ./.;
+  src = ./cembot;
   propagatedBuildInputs = [ telepot python3.pkgs.psycopg2 ];
 }
 
