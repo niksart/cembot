@@ -27,20 +27,21 @@ CREATE TABLE idmappings (
     username         varchar(20),
     id               integer,
     PRIMARY KEY (id)
-)
+);
 
 CREATE TABLE groupmappings (
     name             text,
     id               integer,
     PRIMARY KEY (id)
-)
+);
 
 CREATE TABLE belongings (
     group_id         integer,
     user_id          integer,
     PRIMARY KEY (group_id, user_id)
-)
+);
 
-CREATE INDEX map_username ON idmappings USING HASH (username);
+CREATE INDEX map_username ON idmappings (username);
 
-CREATE INDEX check_group ON belongings USING HASH (group_id, user_id);
+CREATE INDEX check_group ON belongings (group_id, user_id);
+
