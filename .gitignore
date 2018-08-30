@@ -4,3 +4,7 @@ venv
 __pycache__
 result
 
+# secrets:
+db-password.nix
+telegram-token.nix
+
