@@ -20,5 +20,6 @@ IT = {
 	"user_unregistered(user)": "L'utente @%s non è registrato nel nostro sistema.",
 	"can't_deauthorize_cause_not_authorized_yet": "Non hai già autorizzato questo utente. Dunque non puoi revocarne l'autorizzazione.",
 	"have_authorized_yet_this_user": "Hai già autorizzato questo utente.",
-	"maybe_you_wrote_an_username_instead_id": "Questo non è un id numerico. Se intendevi scrivere un username scrivilo con la @ davanti."
+	"maybe_you_wrote_an_username_instead_id": "Questo non è un id numerico. Se intendevi scrivere un username scrivilo con la @ davanti.",
+	"insert_a_correct_number": "Inserisci un numero corretto e riprova."
 }

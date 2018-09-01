@@ -141,18 +141,108 @@ class DBManager:
 
 	def get_balance(self, user1_id, user2_id):
 		cur = self.conn.cursor()
-		cur.execute("SELECT T.payer, P.payee, T.amount "
+		cur.execute("SELECT T.id, T.payer, P.payee, T.amount, group_id "
 		            "FROM transactions AS T, payees AS P "
-		            "WHERE T.id = P.transaction_id "
-		            "AND ((T.payer = %s AND P.payee = %s) OR (T.payer = %s AND P.payee = %s))",
+		            "WHERE T.id = P.transaction_id AND "
+		                "((T.payer = %s AND P.payee = %s) OR (T.payer = %s AND P.payee = %s));",
 		            (user1_id, user2_id, user2_id, user1_id))
 		temp = cur.fetchall()
 		total_amount = 0
-		for (payer, payee, amount) in temp:
+		for (transaction_id, payer, payee, amount, group_id) in temp:
+			if group_id is not None:
+				cur.execute("SELECT COUNT(*) FROM payees WHERE transaction_id=%s", (transaction_id,))
+				(number_payees,) = cur.fetchone()
+				amount = amount / number_payees
+
 			if payer == user1_id and payee == user2_id:
 				total_amount = total_amount + amount
 			if payer == user2_id and payee == user1_id:
 				total_amount = total_amount - amount
+
 		self.close_cursor(cur)
 
 		return total_amount/100
+
+	# get last n charges over the user passed
+	# returns a list of tuples (payer username or id, amount, description)
+	def get_last_n_charges(self, user_id, n):
+		charges_of_individuals = []
+		cur = self.conn.cursor()
+		cur.execute("SELECT payer, amount, description FROM payees AS P, transactions AS T "
+		            "WHERE P.transaction_id=T.id AND payee=%s AND group_id IS NULL AND amount>0 "
+		            "ORDER BY T.time DESC "
+		            "LIMIT %s",
+		            (user_id, n))
+		temp = cur.fetchall()
+
+		for (payer_id, amount, description) in temp:
+			username = self.get_username_by_id(payer_id)
+			charges_of_individuals.append((str(payer_id) if username is None else username, amount / 100, description))
+
+		charges_of_groups= []
+		cur.execute("SELECT T.payer, T.amount, description, GM.name, T.id "
+		            "FROM transactions AS T, payees AS P, groupmappings AS GM "
+		            "WHERE T.id = P.transaction_id AND GM.id=group_id AND P.payee = %s AND group_id IS NOT NULL AND T.payer != %s "
+		            "ORDER BY T.time DESC "
+		            "LIMIT %s",
+		            (user_id, user_id, n))
+		temp = cur.fetchall()
+
+		for (payer_id, amount, description, group_name, transaction_id) in temp:
+			username = self.get_username_by_id(payer_id)
+			cur.execute("SELECT COUNT(*) FROM payees WHERE transaction_id=%s", (transaction_id,))
+			(number_payees, ) = cur.fetchone()
+			charges_of_groups.append((str(payer_id) if username is None else username, (amount/number_payees)/100, description, group_name))
+
+		self.close_cursor(cur)
+
+		return (charges_of_individuals, charges_of_groups)
+
+	# get last n loans over the user passed
+	def get_last_n_loans(self, user_id, n):
+			loans_of_individuals = []
+			cur = self.conn.cursor()
+			cur.execute("SELECT payee, amount, description FROM payees AS P, transactions AS T "
+			            "WHERE P.transaction_id=T.id AND payer=%s AND group_id IS NULL AND amount>0 "
+			            "ORDER BY T.time DESC "
+			            "LIMIT %s",
+			            (user_id, n))
+			temp = cur.fetchall()
+
+			for (payee_id, amount, description) in temp:
+				username = self.get_username_by_id(payee_id)
+				loans_of_individuals.append((str(payee_id) if username is None else username, amount / 100, description))
+
+			loans_of_groups = []
+			cur.execute("SELECT T.amount, description, GM.name "
+			            "FROM transactions AS T, groupmappings AS GM "
+			            "WHERE GM.id=group_id AND T.payer = %s AND group_id IS NOT NULL "
+			            "ORDER BY T.time DESC "
+			            "LIMIT %s",
+			            (user_id, n))
+			temp = cur.fetchall()
+			for (amount, description, group_name) in temp:
+				loans_of_groups.append((group_name, amount/100, description))
+			self.close_cursor(cur)
+
+			return (loans_of_individuals, loans_of_groups)
+
+	# get last n loans over the user passed
+	# returns a list of tuples (payer username or id, amount, description)
+	def get_last_n_group_expenses(self, group_id, n):
+		ret = []
+		cur = self.conn.cursor()
+		cur.execute("SELECT payer, amount, description "
+		            "FROM transactions "
+		            "WHERE group_id=%s AND amount>0 "
+		            "ORDER BY time DESC "
+		            "LIMIT %s",
+		            (group_id, n))
+		temp = cur.fetchall()
+
+		for (payer_id, amount, description) in temp:
+			username = self.get_username_by_id(payer_id)
+			ret.append((str(payer_id) if username is None else username, amount / 100, description))
+		self.close_cursor(cur)
+
+		return ret

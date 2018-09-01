@@ -20,7 +20,9 @@ EN = {
 
 IT = {
 	"start": "Sei stanco di doverti ricordare a chi devi soldi o chi te li deve?\nNessun problema, da oggi ci sono io, Cembot: il tuo libro contabile!📖\n\n"
-			 "Sono utile principalmente per ricordare debiti e crediti che hai nei confronti delle persone che mi usano. Ti aiuterò ad amministrare le spese sia tra singole persone che all'interno di gruppi di persone. Per usarmi più facilmente imposta un username (Impostazioni ➡️ username).\n\n"
+			 "Ti aiuterò ad amministrare le spese sia tra singole persone che all'interno di gruppi di persone. \n\nEntra subito nel mondo di Cembot! ✌\n\nVai alla /guida ▶️",
+	"guide": "Benvenuto nella guida di Cembot! 📖\n\n"
+			 "Per usarmi più facilmente imposta un username (Impostazioni ➡️ username).\n\n"
 			 "Ora che sei in chat privata, quello che puoi fare è:\n"
 			 "1️⃣ approvare o revocare l'autorizzazione di un utente ad addebitare sul tuo conto con i comandi /autorizza o /revoca\n"
 			 "2️⃣ addebitare sul conto di un utente una spesa con il comando /dato (l'utente deve averti autorizzato). Per esempio, \"/dato 6.50 @luca pizza margherita\" se ieri sera hai prestato i soldi per la pizza a Luca\n"
@@ -47,6 +49,7 @@ IT = {
 	"header_balance_credit": "📗 Crediti\n",
 	"header_balance_debit": "📕 Debiti\n",
 	"commands": "🔽 /start\nMostra il messaggio introduttivo a Cembot.\n\n"
+	            "🔽 /guida\nMostra la guida di Cembot.\n\n"
 				"🔽 /comandi\nMostra questo messaggio.\n\n"
 				"🔽 /autorizza \nAutorizza un utente ad addebitarti spese.\nModalità d'uso alternative:\n▪️ /autorizza @<username>\n▪️ /autorizza <id utente>\n\n"
 				"🔽 /revoca\nRevoca l'autorizzazione di un utente. Non potrà più addebitarti spese. \nModalità d'uso alternative:\n▪️ /revoca @<username>\n▪️ /revoca <id utente>\n\n"
@@ -54,4 +57,13 @@ IT = {
 				"🔽 /mioid\nOttieni il tuo ID Telegram. Se non hai ancora impostato uno username, puoi usare l'ID al suo posto.\n\n"
 				"🔽 /bilancio \nOttieni la lista di debiti e crediti nei confronti degli utenti con i quali sei entrato in contatto. Scrivendo il nome utente dopo il comando ti verrà restituito il saldo verso quell'utente.\nModalità d'uso alternative:\n▪️ /bilancio\n▪️ /bilancio @<username>\n\n"
 				"🔽 /speso\nUsa questo comando all'interno di un gruppo se vuoi dividere la spesa fra tutti i partecipanti al gruppo, compreso te stesso.\nModalità d'uso:\n▪️ /speso <soldi> <descrizione>.\n\n"
+				"🔽 /ultime_spese\nUsa questo comando all'interno di un gruppo per conoscere le ultime spese fatte nel gruppo.\nModalità d'uso:\n▪️ /ultime_spese (mostra max 10 spese)\n▪️ /ultime_spese <n max spese>\n\n"
+				"🔽 /ultimi_addebiti\nUsa questo comando in chat privata con Cembot per conoscere gli ultimi addebiti sul tuo conto sia da parte di utenti che di gruppi.\nModalità d'uso:\n▪️ /ultimi_addebiti (mostra max 10 addebiti)\n▪️ /ultimi_addebiti <n max addebiti>\n\n"
+				"🔽 /ultimi_prestiti\nUsa questo comando in chat privata con Cembot per conoscere gli ultimi prestiti che hai fatto a utenti o gruppi.\nModalità d'uso:\n▪️ /ultimi_prestiti (mostra max 10 prestiti)\n▪️ /ultimi_prestiti <n max prestiti>\n\n",
+	"these_are_the_last_group_expenses": "Ecco le ultime spese di questo gruppo (la prima è l'ultima spesa inserita):\n\n",
+	"these_are_the_last_individual_charges": "Ecco gli ultimi addebiti fatti da utenti individuali sul tuo conto (pagante, importo, descrizione):\n\n",
+	"these_are_the_last_group_charges": "Ecco gli ultimi addebiti fatti dai gruppi sul tuo conto (pagante, nome del gruppo, importo, descrizione):\n\n",
+	"no_charges_yet": "Non hai ancora nessun addebito!",
+	"these_are_the_last_individual_loans": "Ecco i tuoi ultimi prestiti verso un utente (beneficiario, importo, descrizione):\n\n",
+	"these_are_the_last_group_loans": "Ecco i tuoi ultimi prestiti verso un gruppo (nome gruppo beneficiario, importo, descrizione):\n\n"
 }

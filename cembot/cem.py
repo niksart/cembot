@@ -38,8 +38,16 @@ def get_function_by_key(key):
 		return balance
 	if key == "START":
 		return start
+	if key == "GUIDE":
+		return guide
 	if key == "COMMANDS":
 		return commands_list
+	if key == "LAST_GROUP_EXPENSES":
+		return last_group_expenses
+	if key == "LAST_LOANS":
+		return last_loans
+	if key == "LAST_CHARGES":
+		return last_charges
 
 
 def set_language(lang):
@@ -219,7 +227,7 @@ def spent(bot, user, chat, args):
 	if number_members_group_db == number_members_group_telegram:
 		try:
 			cur = dbman.get_cursor()
-			cur.execute("INSERT INTO transactions (payer, description, amount, time, group_id) VALUES (%s, %s, %s, %s, %s) RETURNING id", (payer_id, description, amount/number_members_group_db, int(time.time()), chat["id"]))
+			cur.execute("INSERT INTO transactions (payer, description, amount, time, group_id) VALUES (%s, %s, %s, %s, %s) RETURNING id", (payer_id, description, amount, int(time.time()), chat["id"]))
 			id_new_transaction = cur.fetchone()[0]
 			dbman.commit_changes()
 
@@ -240,6 +248,111 @@ def spent(bot, user, chat, args):
 	else:
 		bot.sendMessage(chat["id"], error["waiting_for_all_users"], parse_mode=parse_mode)
 
+
+def last_group_expenses(bot, user, chat, args):
+	if len(args) > 1:
+		bot.sendMessage(chat["id"], helper["LAST_GROUP_EXPENSES"], parse_mode=parse_mode)
+		return
+
+	n_max_expenses = 0
+
+	if len(args) == 0:
+		n_max_expenses = 5
+	elif len(args) == 1:
+		try:
+			n_max_expenses = int(args[0])
+		except ValueError:
+			bot.sendMessage(chat["id"], error["insert_a_correct_number"])
+			return
+
+	if n_max_expenses < 0 or n_max_expenses > 100:
+		n_max_expenses = 5
+	expenses = dbman.get_last_n_group_expenses(chat["id"], n_max_expenses)
+	message = info["these_are_the_last_group_expenses"]
+	for (payer, amount, description) in expenses:
+		message += "▪️ " + (payer if payer.isnumeric() else "@" + payer) + ", " + "{:=.2f}".format(amount) + " " + currency + ", " + description + "\n"
+
+	bot.sendMessage(chat["id"], message)
+
+
+def last_charges(bot, user, chat, args):
+	if len(args) > 1:
+		bot.sendMessage(chat["id"], helper["LAST_CHARGES"], parse_mode=parse_mode)
+		return
+
+	n_max_charges = 0
+
+	if len(args) == 0:
+		n_max_charges = 5
+	elif len(args) == 1:
+		try:
+			n_max_charges = int(args[0])
+		except ValueError:
+			bot.sendMessage(chat["id"], error["insert_a_correct_number"])
+			return
+
+	if n_max_charges < 0 or n_max_charges > 100:
+		n_max_charges = 5
+
+	(individual_charges, group_charges) = dbman.get_last_n_charges(chat["id"], n_max_charges)
+	message = ""
+
+	if individual_charges != ():
+		message = info["these_are_the_last_individual_charges"]
+		for (payer, amount, description) in individual_charges:
+			message += "▪️ " + (payer if payer.isnumeric() else "@" + payer) + ", " + "{:=.2f}".format(amount) + " " + currency + ", " + str(description) + "\n"
+
+	if group_charges != ():
+		message += "\n🔶 🔶 🔶\n\n"
+		message += info["these_are_the_last_group_charges"]
+		for (payer, amount, description, group_name) in group_charges:
+			message += "▫️ " + (payer if payer.isnumeric() else "@" + payer) + ", " + group_name + ", " + "{:=.2f}".format(amount) + " " + currency + ", " + str(description) + "\n"
+
+	if individual_charges == () and group_charges == ():
+		message += info["no_charges_yet"]
+
+	bot.sendMessage(chat["id"], message)
+
+
+def last_loans(bot, user, chat, args):
+	if len(args) > 1:
+		bot.sendMessage(chat["id"], helper["LAST_LOANS"], parse_mode=parse_mode)
+		return
+
+	n_max_loans = 0
+
+	if len(args) == 0:
+		n_max_loans = 5
+	elif len(args) == 1:
+		try:
+			n_max_charges = int(args[0])
+		except ValueError:
+			bot.sendMessage(chat["id"], error["insert_a_correct_number"])
+			return
+
+	if n_max_loans < 0 or n_max_loans > 100:
+		n_max_loans = 5
+
+	(individual_loans, group_loans) = dbman.get_last_n_loans(chat["id"], n_max_loans)
+	message = ""
+
+	if individual_loans != ():
+		message = info["these_are_the_last_individual_loans"]
+		for (payer, amount, description) in individual_loans:
+			message += "▪️ " + (payer if payer.isnumeric() else "@" + payer) + ", " + "{:=.2f}".format(
+				amount) + " " + currency + ", " + str(description) + "\n"
+
+	if group_loans != ():
+		message += "\n🔷 🔷 🔷\n\n"
+		message += info["these_are_the_last_group_loans"]
+		for (group_name, amount, description) in group_loans:
+			message += "▫️ " + group_name + ", " + "{:=.2f}".format(amount) + " " + currency + ", " + str(description) + "\n"
+
+	if individual_loans == () and group_loans == ():
+		message += info["no_loans_yet"]
+
+	bot.sendMessage(chat["id"], message)
+
 def myid(bot, user, chat, args):
 	if len(args) != 0:
 		bot.sendMessage(chat["id"], helper["MYID"], parse_mode=parse_mode)
@@ -253,6 +366,10 @@ def start(bot, user, chat, args):
 
 def commands_list(bot, user, chat, args):
 	bot.sendMessage(chat["id"], info["commands"])
+
+
+def guide(bot, user, chat, args):
+	bot.sendMessage(chat["id"], info["guide"])
 
 
 def balance(bot, user, chat, args):

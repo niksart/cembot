@@ -44,4 +44,3 @@ CREATE TABLE belongings (
 CREATE INDEX map_username ON idmappings (username);
 
 CREATE INDEX check_group ON belongings (group_id, user_id);
-
