@@ -510,10 +510,13 @@ def main(argv):
 		bot = telepot.Bot(os.environ[bot_env_variabile])
 		bot_id = bot.getMe()["id"]
 
-                try:
-			telepot.loop.MessageLoop(bot, handle=(lambda msg: handle(bot, msg))).run_forever()
-                except:
-			dbman.close_connection()
+		telepot.loop.MessageLoop(bot, handle=(lambda msg: handle(bot, msg))).run_as_thread()
+		print('Listening ...')
+
+		while input() != "q":
+			time.sleep(1)
+
+		dbman.close_connection()
 	else:
 		print("Usage: python " + argv[0] + " <dbname> <dbuser> <dbpassword> <dbhost> <IT | EN for language>")
 		exit(1)
