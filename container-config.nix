@@ -14,6 +14,7 @@ in {
     initialScript = pkgs.writeText "postgres-initial-script" (''
       CREATE ROLE cem SUPERUSER LOGIN PASSWORD '${dbpassword}';
       CREATE DATABASE cem;
+      \connect cem
     ''
     + builtins.readFile ./schema.sql);
   };
