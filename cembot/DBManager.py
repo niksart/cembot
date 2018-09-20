@@ -64,8 +64,12 @@ class DBManager:
 		return username
 
 	def update_username_id_mapping(self, user):
+		try:
+			username = user["username"]
+		except KeyError:
+			return
+
 		cur = self.conn.cursor()
-		username = user["username"]
 		id_user = int(user["id"])
 		cur.execute("SELECT id, username FROM idmappings WHERE id=%s", (id_user,))
 		occurrence = cur.fetchone()
