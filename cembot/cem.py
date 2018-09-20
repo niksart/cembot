@@ -4,16 +4,17 @@ import telepot
 import telepot.routing
 import telepot.loop
 import telepot.text
+
 import time
 import sys
 import os
+import logging
+
 import DBManager
 import info_messages
 import error_messages
 import commands
 import helpers
-
-DEBUG = True
 
 
 # AUXILIARY FUNCTIONS #
@@ -110,7 +111,7 @@ def authorize(bot, user, chat, args):
 		bot.sendMessage(chat["id"], error["user_unregistered(user)"] % authorized_username, parse_mode=parse_mode)
 		return
 
-	# print("%s: 'please authorize this user: %s'" % (authorizer_id, authorized_id))
+	# logging.debug("%s: 'please authorize this user: %s'" % (authorizer_id, authorized_id))
 
 	cur = dbman.get_cursor()
 	cur.execute("SELECT id FROM authorizations WHERE authorizer=%s AND authorized=%s", (authorizer_id, authorized_id))
@@ -143,7 +144,7 @@ def deauthorize(bot, user, chat, args):
 		bot.sendMessage(chat["id"], error["user_unregistered(user)"] % deauthorized_username, parse_mode=parse_mode)
 		return
 
-	# print("%s: 'please deauthorize this user: %s'" % (deauthorizer_id, deauthorized_id))
+	# logging.debug("%s: 'please deauthorize this user: %s'" % (deauthorizer_id, deauthorized_id))
 
 	cur = dbman.get_cursor()
 	cur.execute("SELECT id FROM authorizations WHERE authorizer=%s AND authorized=%s", (deauthorizer_id, deauthorized_id))
@@ -198,7 +199,7 @@ def given(bot, user, chat, args):
 		cur.execute("INSERT INTO payees (transaction_id, payee) VALUES (%s, %s)", (id_new_transaction, payee_id))
 		dbman.close_cursor(cur)
 	except Exception as e:
-		print("An error occured in /giving command: %s" % e)
+		logging.error("An error occured in /giving command: %s" % e)
 		dbman.conn.rollback()
 		return
 
@@ -240,7 +241,7 @@ def spent(bot, user, chat, args):
 
 			dbman.close_cursor(cur)
 		except Exception as e:
-			print("An error occured in /spent command: %s" % e)
+			logging.error("An error occured in /spent command: %s" % e)
 			dbman.conn.rollback()
 			return
 
@@ -426,8 +427,7 @@ def balance(bot, user, chat, args):
 def handle(bot, msg):
 	content_type, chat_type, chat_id = telepot.glance(msg)
 
-	if DEBUG:
-		print(msg)
+	logging.debug(msg)
 
 	chat = msg["chat"]
 	user = msg["from"]
