@@ -19,12 +19,12 @@ in python3.pkgs.buildPythonApplication rec {
 
   installPhase = ''
     mkdir -p "$out/share"
-    cp *.py "$out/share/"
+    cp -r commands DBManager __init__.py languages main.py utils "$out/share/"
     cp -r __pycache__ "$out/share/__pycache__"
     makeWrapper "${python3.interpreter}" "$out/bin/cem" \
           --set PYTHONPATH "$PYTHONPATH" \
           --run "cd \"$out/share\"" \
-          --add-flags "$out/share/cem.py"
+          --add-flags "$out/share/main.py"
   '';
 
   src = ./cembot;
