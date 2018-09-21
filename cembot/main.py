@@ -23,17 +23,17 @@ def set_language(lang):
 		LANG = {
 			"error": languages.IT.error,
 			"info": languages.IT.info,
-			"group_commands": languages.IT.group_command,
-			"private_commands": languages.IT.private_command,
-			"helper_commands": languages.IT.helper_command
+			"group_commands": languages.IT.group_commands,
+			"private_commands": languages.IT.private_commands,
+			"helper_commands": languages.IT.helper_commands
 		}
 	else:  # default language: english EN
 		LANG = {
 			"error": languages.EN.error,
 			"info": languages.EN.info,
-			"group_commands": languages.EN.group_command,
-			"private_commands": languages.EN.private_command,
-			"helper_commands": languages.EN.helper_command
+			"group_commands": languages.EN.group_commands,
+			"private_commands": languages.EN.private_commands,
+			"helper_commands": languages.EN.helper_commands
 		}
 
 

@@ -1,6 +1,6 @@
 # Support for italian (IT) language
 
-helper_command = {
+helper_commands = {
 	"AUTHORIZE": "Usa questo comando se vuoi autorizzare un utente.\n"
 	             "Modalità d'uso alternative:\n"
 	             "▪️ /autorizza @<username>\n"
@@ -155,7 +155,7 @@ error = {
 
 # commands
 
-private_command = {
+private_commands = {
 	"start": "START",
     "comandi": "COMMANDS",
     "autorizza": "AUTHORIZE",
@@ -168,7 +168,7 @@ private_command = {
 	"guida": "GUIDE"
 }
 
-group_command = {
+group_commands = {
 	"speso": "SPENT",
 	"speso@it_cembot": "SPENT",
 
