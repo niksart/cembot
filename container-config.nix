@@ -11,6 +11,7 @@ let
 in {
   services.postgresql = {
     enable = true;
+    # Disable to migrate:
     initialScript = pkgs.writeText "postgres-initial-script" (''
       CREATE ROLE cem SUPERUSER LOGIN PASSWORD '${dbpassword}';
       CREATE DATABASE cem;
