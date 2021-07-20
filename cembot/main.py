@@ -13,6 +13,8 @@ import DBManager
 import languages
 import commands
 
+bot_token_env_variable = "CEM_TELEGRAM_TOKEN"
+
 
 def set_language(lang):
 	global LANG
@@ -116,11 +118,10 @@ def main(argv):
 		botlanguage = argv[5].upper()
 
 		set_language(botlanguage)
-		bot_env_variabile = "CEM_" + botlanguage
 
 		dbman = DBManager.DBManager.DBManager(dbname, dbuser, dbpassword, dbhost)
 
-		bot = telepot.Bot(os.environ[bot_env_variabile])
+		bot = telepot.Bot(os.environ[bot_token_env_variable])
 		bot_id = bot.getMe()["id"]
 
 		try:

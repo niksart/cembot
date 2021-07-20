@@ -23,7 +23,7 @@ in {
     description = "cembot main service";
     path  = [ cembotPackage ];
     environment = {
-      CEM_IT = import ./telegram-token.nix;
+      CEM_TELEGRAM_TOKEN = import ./telegram-token.nix;
     };
     script =
       ''
