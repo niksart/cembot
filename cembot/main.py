@@ -49,14 +49,14 @@ def handle(bot, msg):
 	dbman.update_username_id_mapping(user)
 
 	# c'è un nuovo membro nel gruppo
-	if content_type == "new_chat_member" and chat_type == "group":
+	if content_type == "new_chat_member" and chat_type in ["group", "supergroup"]:
 		added_user = msg["new_chat_member"]["id"]
 		if added_user == bot_id:
 			bot.sendMessage(chat_id, LANG["info"]["introduced_in_group"])
 		else:
 			dbman.check_belonging_existence(added_user, chat_id)
 
-	if content_type == "left_chat_member" and chat_type == "group":
+	if content_type == "left_chat_member" and chat_type in ["group", "supergroup"]:
 		removed_user = msg["left_chat_member"]["id"]
 		dbman.remove_belonging(removed_user, chat_id)
 
@@ -76,7 +76,7 @@ def handle(bot, msg):
 				bot.sendMessage(chat["id"], LANG["error"]["command_unavailable_for_private"])
 
 		if command_typed in LANG["group_commands"]:
-			if chat["type"] == "group":
+			if chat["type"] in ["group", "supergroup"]:
 				group_id = chat_id
 				group_name = chat["title"]
 				dbman.update_groupname_id_mappings(group_id, group_name)
