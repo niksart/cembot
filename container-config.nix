@@ -3,6 +3,7 @@
 let
   cembotPackage = pkgs.callPackage ./package.nix {};
   language = "IT";
+  currency = "€";
   dbname = "cem";
   dbuser = "cem";
   dbpassword = import ./db-password.nix;
@@ -32,7 +33,8 @@ in {
           ${dbuser} \
           ${dbpassword} \
           ${dbhost} \
-          ${language}
+          ${language} \
+          ${currency}
       '';
   };
 }

@@ -10,7 +10,7 @@ def given(bot, user, chat, args, dbman, LANG, currency, parse_mode):
 		return
 
 	try:
-		amountstr = args[0].replace(',', '.').replace('€', '')
+		amountstr = args[0].replace(',', '.').replace(currency, '')
 		amount = int(100 * float(amountstr))
 	except ValueError:
 		bot.sendMessage(chat["id"], LANG["error"]["amount_money_not_valid"])

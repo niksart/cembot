@@ -106,7 +106,6 @@ def main(argv):
 	global parse_mode
 
 	global currency
-	currency = "€"
 
 	parse_mode = None
 	
@@ -116,6 +115,7 @@ def main(argv):
 		dbpassword = argv[3]
 		dbhost = argv[4]
 		botlanguage = argv[5].upper()
+		currency = argv[6]
 
 		set_language(botlanguage)
 
@@ -129,7 +129,7 @@ def main(argv):
 		except:
 			dbman.close_connection()
 	else:
-		print("Usage: python " + argv[0] + " <dbname> <dbuser> <dbpassword> <dbhost> <IT | EN for language>")
+		print("Usage: python " + argv[0] + " <dbname> <dbuser> <dbpassword> <dbhost> <IT | EN for language> <currency>")
 		exit(1)
 
 
