@@ -109,7 +109,7 @@ def main(argv):
 
 	parse_mode = None
 	
-	if len(argv) == 5 + 1:
+	if len(argv) == 6 + 1:
 		dbname = argv[1]
 		dbuser = argv[2]
 		dbpassword = argv[3]
