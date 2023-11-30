@@ -41,10 +41,7 @@ in {
       ensureDatabases = [ dbname ];
       ensureUsers = [{
         name = user;
-        ensurePermissions = {
-          "DATABASE \"${dbname}\"" = "ALL PRIVILEGES";
-          "ALL TABLES IN SCHEMA public" = "ALL PRIVILEGES";
-        };
+        ensureDBOwnership = true;
       }];
       initialScript = pkgs.writeText "postgres-cembot-initial-script" ''
         \connect ${dbname}
