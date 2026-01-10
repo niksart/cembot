@@ -2,11 +2,14 @@
 , fetchFromGitHub
 , aiohttp
 , urllib3
+, setuptools
 }:
 
 buildPythonPackage rec {
   pname = "telepot";
   version = "unstable";
+  pyproject = true;
+  build-system = [ setuptools ];
 
   src = fetchFromGitHub {
     owner = "nickoala";
